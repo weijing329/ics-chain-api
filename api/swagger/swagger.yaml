@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   version: "0.0.1"
-  title: ICS Blockchain API
+  title: 保險理賠 Blockchain API
 # during dev, should point to your local machine
 host: localhost:10010
 # basePath prefixes all resource paths 
@@ -36,7 +36,53 @@ paths:
           description: Success
           schema:
             # a pointer to a definition
-            $ref: "#/definitions/HelloWorldResponse"
+            $ref: "#/definitions/MessageResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /Government/Person:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: Government
+    get:
+      description: 取得自然人資料的hash
+      # used as the method name of the controller
+      operationId: GetPerson
+      parameters:
+        - name: person_code
+          in: query
+          description: 自然人編號
+          required: false
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/PersonOutputObject"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: 寫入自然人資料(更新hash)
+      # used as the method name of the controller
+      operationId: SetPerson
+      parameters:
+        - name: person
+          in: body
+          description: 自然人
+          required: true
+          schema:
+            $ref: '#/definitions/PersonInputObject'
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/TransactionResponse"
         # responses may fall through to errors
         default:
           description: Error
@@ -46,7 +92,27 @@ paths:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
 definitions:
-  HelloWorldResponse:
+  PersonInputObject:
+    description: 自然人
+    required:
+      - person_code
+      - person_data
+    properties:
+      person_code:
+        type: string
+      person_data:
+        type: string
+  PersonOutputObject:
+    description: 自然人
+    required:
+      - person_code
+      - person_hash
+    properties:
+      person_code:
+        type: string
+      person_hash:
+        type: string
+  MessageResponse:
     required:
       - message
     properties:
@@ -57,4 +123,10 @@ definitions:
       - message
     properties:
       message:
+        type: string
+  TransactionResponse:
+    required:
+      - txHash
+    properties:
+      txHash:
         type: string

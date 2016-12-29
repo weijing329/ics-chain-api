@@ -13,6 +13,11 @@ var config = {
   appRoot: __dirname // required config
 };
 
+global.web3 = require('./lib/web3_connector.js');
+global.EmbarkJS = require('./lib/embark.js');
+global.Government = require('./lib/contracts/Government.js');
+global.Person = require('./lib/contracts/Person.js');
+
 // socket.io
 // Default namespace (/)
 // Default path (/socket.io)
