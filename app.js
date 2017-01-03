@@ -18,6 +18,8 @@ global.EmbarkJS = require('./lib/embark.js');
 global.Government = require('./lib/contracts/Government.js');
 global.Person = require('./lib/contracts/Person.js');
 
+global.io = io;
+
 // socket.io
 // Default namespace (/)
 // Default path (/socket.io)
