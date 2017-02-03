@@ -75,3 +75,7 @@ config/runtime.yaml
 
 # Ignore redis binary dump (dump.rdb) files
 *.rdb
+
+.vscode*
+
+.node-xmlhttprequest-sync*

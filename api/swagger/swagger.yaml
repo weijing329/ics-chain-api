@@ -42,32 +42,26 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /Government/Person:
+  /Government/Person/:
     # binds a127 app logic to a route
-    x-swagger-router-controller: Government
+    x-swagger-router-controller: Person
     get:
-      description: 取得自然人資料的hash
+      description: 取得區塊鏈上已同步自然人資料
       # used as the method name of the controller
-      operationId: GetPerson
-      parameters:
-        - name: person_code
-          in: query
-          description: 自然人編號
-          required: false
-          type: string
+      operationId: GetPersonInfo
       responses:
         "200":
           description: Success
           schema:
             # a pointer to a definition
-            $ref: "#/definitions/PersonOutputObject"
+            $ref: "#/definitions/TableInfo"
         # responses may fall through to errors
         default:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
     post:
-      description: 寫入自然人資料(更新hash)
+      description: 寫入自然人資料
       # used as the method name of the controller
       operationId: SetPerson
       parameters:
@@ -76,55 +70,155 @@ paths:
           description: 自然人
           required: true
           schema:
-            $ref: '#/definitions/PersonInputObject'
+            $ref: '#/definitions/Person'
       responses:
         "200":
           description: Success
           schema:
             # a pointer to a definition
-            $ref: "#/definitions/TransactionResponse"
+            $ref: "#/definitions/BlockchainTransaction"
         # responses may fall through to errors
         default:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+  /Government/Person/{code}:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: Person
+    get:
+      description: 取得自然人最新的資料hash
+      # used as the method name of the controller
+      operationId: GetPersonHash
+      parameters:
+        - name: code
+          in: path
+          description: 自然人編號
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/TableRowDataHash"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+  /Government/Person/{code}/{hash}:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: Person
+    get:
+      description: 取得指定hash版本的自然人資料
+      # used as the method name of the controller
+      operationId: GetPersonData
+      parameters:
+        - name: code
+          in: path
+          description: 自然人編號
+          required: true
+          type: string
+        - name: hash
+          in: path
+          description: 自然人資料 Hash
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/TableRowData"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
   /swagger:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
 definitions:
-  PersonInputObject:
-    description: 自然人
+  TableInfo:
+    description: 區塊鏈上 RDB Table 已同步的PK資訊
     required:
-      - person_code
-      - person_data
+      - row_count
+      - row_CPKs
     properties:
-      person_code:
-        type: string
-      person_data:
-        type: string
-  PersonOutputObject:
-    description: 自然人
+      row_count:
+        description: 資料比數
+        type: integer
+        format: int32
+      row_CPKs:
+        description: PK 清單
+        type: array
+        items:
+          type: string
+          
+  TableRow:
+    description: RDB Table row
     required:
-      - person_code
-      - person_hash
+      - row_CPK
+      - row_data
     properties:
-      person_code:
+      row_CPK:
+        description: RDB Table row composite PK
         type: string
-      person_hash:
+      row_data:
+        description: RDB Table row data
         type: string
+        
+  TableRowData:
+    description: RDB Table row 資料
+    required:
+      - row_CPK
+      - row_data_hash
+      - row_data
+    properties:
+      row_CPK:
+        type: string
+      row_data_hash:
+        type: string
+      row_data:
+        type: string
+        
+  TableRowDataHash:
+    description: RDB Table row 資料hash
+    required:
+      - row_CPK
+      - row_data_hash
+    properties:
+      row_CPK:
+        type: string
+      row_data_hash:
+        type: string
+        
+  Person:
+    description: 自然人資料
+    required:
+      - table_row
+    properties:
+      table_row:
+        $ref: "#/definitions/TableRow"
+        
   MessageResponse:
     required:
       - message
     properties:
       message:
         type: string
+        
   ErrorResponse:
     required:
       - message
     properties:
       message:
         type: string
-  TransactionResponse:
+        
+  BlockchainTransaction:
+    description: Blockchain Transaction
     required:
       - txHash
     properties:

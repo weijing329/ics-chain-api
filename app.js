@@ -13,6 +13,8 @@ var config = {
   appRoot: __dirname // required config
 };
 
+global.moment = require('moment');
+
 global.web3 = require('./lib/web3_connector.js');
 global.EmbarkJS = require('./lib/embark.js');
 global.Government = require('./lib/contracts/Government.js');
@@ -27,6 +29,9 @@ global.io = io;
 //Emits an event to all connected clients.
 // io.sockets.emit('an event sent to all connected clients');
 // io.emit('an event sent to all connected clients');
+
+// broadcast() only can be use when knowing which socket sending from 
+// socket.broadcast(); send the message to all the other clients except the 'broadcasting' socket
 
 io.on('connection', function(socket){
   console.log('Client connected');
