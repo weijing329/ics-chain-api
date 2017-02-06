@@ -19,6 +19,12 @@ global.web3 = require('./lib/web3_connector.js');
 global.EmbarkJS = require('./lib/embark.js');
 global.Government = require('./lib/contracts/Government.js');
 global.Person = require('./lib/contracts/Person.js');
+global.Enrollment = require('./lib/contracts/Enrollment.js');
+global.ContractTerm = require('./lib/contracts/ContractTerm.js');
+global.InsurancePolicy = require('./lib/contracts/InsurancePolicy.js');
+global.MedicalRecord = require('./lib/contracts/MedicalRecord.js');
+global.ClaimRecord = require('./lib/contracts/ClaimRecord.js');
+global.ClaimRecordStatusWater = require('./lib/workflow_status_watcher/ClaimRecordStatus.js');
 
 global.io = io;
 
@@ -74,4 +80,6 @@ SwaggerExpress.create(config, function(err, swaggerExpress) {
   if (swaggerExpress.runner.swagger.paths['/hello']) {
     console.log('try this:\ncurl http://127.0.0.1:' + port + '/api/hello?name=Scott');
   }
+
+  ClaimRecordStatusWater.Init();
 });

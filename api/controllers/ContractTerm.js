@@ -3,14 +3,14 @@
 var util = require('util');
 
 module.exports = {
-  GetPersonInfo: GetPersonInfo,
-  GetPersonHash: GetPersonHash,
-  GetPerson: GetPerson,
-  SetPerson: SetPerson
+  GetContractTermInfo: GetContractTermInfo,
+  GetContractTermHash: GetContractTermHash,
+  GetContractTerm: GetContractTerm,
+  SetContractTerm: SetContractTerm
 };
 
-function GetPersonInfo(req, res) {
-  var ContractObject = Person._originalContractObject;
+function GetContractTermInfo(req, res) {
+  var ContractObject = ContractTerm._originalContractObject;
 
   var row_count = ContractObject.GetRowCount().toNumber();
   var row_CPKs = [];
@@ -28,10 +28,10 @@ function GetPersonInfo(req, res) {
   res.json(TableInfo);
 }
 
-function GetPersonHash(req, res) {
+function GetContractTermHash(req, res) {
   var row_CPK = req.swagger.params.row_CPK.value || '';
 
-  var ContractObject = Person._originalContractObject;
+  var ContractObject = ContractTerm._originalContractObject;
 
   // TODO 看是不是先讀取queue內是否有相同contract的寫入時間，以queue內的資料當作是最新的。
   var row_data_hash = ContractObject.GetTableRowDataHash(row_CPK);
@@ -44,11 +44,11 @@ function GetPersonHash(req, res) {
   res.json(TableRowDataHash);
 }
 
-function GetPerson(req, res) {
+function GetContractTerm(req, res) {
   var row_CPK = req.swagger.params.row_CPK.value || '';
   var row_data_hash = req.swagger.params.hash.value || '';
 
-  var ContractObject = Person._originalContractObject;
+  var ContractObject = ContractTerm._originalContractObject;
 
   var row_data = ContractObject.GetTableRowData(row_CPK, row_data_hash);
 
@@ -58,22 +58,26 @@ function GetPerson(req, res) {
     row_data: row_data
   };
 
-  var PersonResponse = {
-    table_row: TableRowData
+  var claim_adjustment = ContractObject.Get_claim_adjustment(row_CPK).toNumber();
+
+  var ContractTermResponse = {
+    table_row: TableRowData,
+    claim_adjustment: claim_adjustment
   };
 
-  res.json(PersonResponse);
+  res.json(ContractTermResponse);
 }
 
-function SetPerson(req, res) {
+function SetContractTerm(req, res) {
   // variables defined in the Swagger document can be referenced using req.swagger.params.{parameter_name}
-  var person = req.swagger.params.person.value;
+  var contract_term = req.swagger.params.contract_term.value;
+  var claim_adjustment = req.swagger.params.contract_term.value.claim_adjustment;
 
-  var row_CPK = person.table_row.row_CPK || '';
-  var row_data = person.table_row.row_data || '';
+  var row_CPK = contract_term.table_row.row_CPK || '';
+  var row_data = contract_term.table_row.row_data || '';
 
-  var ContractObject = Person._originalContractObject;
-  var set_function = 'SetPerson';
+  var ContractObject = ContractTerm._originalContractObject;
+  var set_function = 'SetContractTerm';
   var set_event = 'e_SetTableRowData';
 
   // ToDo: 資料內容檢查
@@ -97,7 +101,7 @@ function SetPerson(req, res) {
       // var txHash = logs.transactionHash;
       // var web3_TransactionReceipt = web3.eth.getTransactionReceipt(txHash);
 
-      io.sockets.emit('SetPerson', JSON.stringify(logs.args) );
+      io.sockets.emit('SetContractTerm', JSON.stringify(logs.args) );
 
     } else {
 
@@ -105,7 +109,7 @@ function SetPerson(req, res) {
     event_listener.stopWatching();
   });
 
-  var txHash = ContractObject[set_function](row_CPK, row_data, {gas: 4141592});
+  var txHash = ContractObject[set_function](row_CPK, row_data, claim_adjustment, {gas: 4141592});
 
 
   // var pending_date = moment();

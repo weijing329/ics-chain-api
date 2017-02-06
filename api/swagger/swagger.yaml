@@ -18,30 +18,30 @@ consumes:
 produces:
   - application/json
 paths:
-  /hello:
-    # binds a127 app logic to a route
-    x-swagger-router-controller: hello_world
-    get:
-      description: Returns 'Hello' to the caller
-      # used as the method name of the controller
-      operationId: hello
-      parameters:
-        - name: name
-          in: query
-          description: The name of the person to whom to say hello
-          required: false
-          type: string
-      responses:
-        "200":
-          description: Success
-          schema:
-            # a pointer to a definition
-            $ref: "#/definitions/MessageResponse"
-        # responses may fall through to errors
-        default:
-          description: Error
-          schema:
-            $ref: "#/definitions/ErrorResponse"
+  # /hello:
+  #   # binds a127 app logic to a route
+  #   x-swagger-router-controller: hello_world
+  #   get:
+  #     description: Returns 'Hello' to the caller
+  #     # used as the method name of the controller
+  #     operationId: hello
+  #     parameters:
+  #       - name: name
+  #         in: query
+  #         description: The name of the person to whom to say hello
+  #         required: false
+  #         type: string
+  #     responses:
+  #       "200":
+  #         description: Success
+  #         schema:
+  #           # a pointer to a definition
+  #           $ref: "#/definitions/MessageResponse"
+  #       # responses may fall through to errors
+  #       default:
+  #         description: Error
+  #         schema:
+  #           $ref: "#/definitions/ErrorResponse"
 
   #################################################
   # Person 自然人 API    
@@ -87,7 +87,7 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
 
-  /Government/Person/{code}:
+  /Government/Person/{row_CPK}:
     # binds a127 app logic to a route
     x-swagger-router-controller: Person
     get:
@@ -95,9 +95,9 @@ paths:
       # used as the method name of the controller
       operationId: GetPersonHash
       parameters:
-        - name: code
+        - name: row_CPK
           in: path
-          description: 自然人編號
+          description: person_code
           required: true
           type: string
       responses:
@@ -112,22 +112,22 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
             
-  /Government/Person/{code}/{hash}:
+  /Government/Person/{row_CPK}/{hash}:
     # binds a127 app logic to a route
     x-swagger-router-controller: Person
     get:
       description: 取得指定hash版本的自然人資料
       # used as the method name of the controller
-      operationId: GetPersonData
+      operationId: GetPerson
       parameters:
-        - name: code
+        - name: row_CPK
           in: path
-          description: 自然人編號
+          description: person_code
           required: true
           type: string
         - name: hash
           in: path
-          description: 自然人資料 Hash
+          description: data Hash
           required: true
           type: string
       responses:
@@ -145,22 +145,497 @@ paths:
   #################################################
   # Enrollment 註冊保戶保單 API        
   #################################################
+  /Insurance/Enrollment/:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: Enrollment
+    get:
+      description: 取得區塊鏈上已同步保戶保單註冊資料
+      # used as the method name of the controller
+      operationId: GetEnrollmentInfo
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/TableInfo"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: 寫入保戶保單註冊資料
+      # used as the method name of the controller
+      operationId: SetEnrollment
+      parameters:
+        - name: enrollment
+          in: body
+          description: 保戶保單註冊資料
+          required: true
+          schema:
+            $ref: '#/definitions/Enrollment'
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/BlockchainTransaction"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /Insurance/Enrollment/{row_CPK}:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: Enrollment
+    get:
+      description: 取得最新的保戶保單註冊資料hash
+      # used as the method name of the controller
+      operationId: GetEnrollmentHash
+      parameters:
+        - name: row_CPK
+          in: path
+          description: insured_person_ID|insurance_policy_package_ID|insurance_policy_ID
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/TableRowDataHash"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+  /Insurance/Enrollment/{row_CPK}/{hash}:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: Enrollment
+    get:
+      description: 取得指定hash版本的保戶保單註冊資料
+      # used as the method name of the controller
+      operationId: GetEnrollment
+      parameters:
+        - name: row_CPK
+          in: path
+          description: insured_person_ID|insurance_policy_package_ID|insurance_policy_ID
+          required: true
+          type: string
+        - name: hash
+          in: path
+          description: data Hash
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/Enrollment"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
 
   #################################################
   # ContractTerm 契約內容 API  
   #################################################
+  /Insurance/ContractTerm/:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: ContractTerm
+    get:
+      description: 取得區塊鏈上已同步的契約內容資料
+      # used as the method name of the controller
+      operationId: GetContractTermInfo
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/TableInfo"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: 寫入契約內容資料
+      # used as the method name of the controller
+      operationId: SetContractTerm
+      parameters:
+        - name: contract_term
+          in: body
+          description: 契約內容資料
+          required: true
+          schema:
+            $ref: '#/definitions/ContractTerm'
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/BlockchainTransaction"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /Insurance/ContractTerm/{row_CPK}:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: ContractTerm
+    get:
+      description: 取得最新的契約內容資料hash
+      # used as the method name of the controller
+      operationId: GetContractTermHash
+      parameters:
+        - name: row_CPK
+          in: path
+          description: insurance_policy_ID|benefit_item_ID
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/TableRowDataHash"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+  /Insurance/ContractTerm/{row_CPK}/{hash}:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: ContractTerm
+    get:
+      description: 取得指定hash版本的契約內容資料
+      # used as the method name of the controller
+      operationId: GetContractTerm
+      parameters:
+        - name: row_CPK
+          in: path
+          description: insurance_policy_ID|benefit_item_ID
+          required: true
+          type: string
+        - name: hash
+          in: path
+          description: data Hash
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ContractTerm"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
 
   #################################################
   # MedicalRecord 醫療記錄 API  
   #################################################
+  /Insurance/MedicalRecord/:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: MedicalRecord
+    get:
+      description: 取得區塊鏈上已同步的醫療記錄資料
+      # used as the method name of the controller
+      operationId: GetMedicalRecordInfo
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/TableInfo"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: 寫入醫療記錄資料
+      # used as the method name of the controller
+      operationId: SetMedicalRecord
+      parameters:
+        - name: medical_record
+          in: body
+          description: 醫療記錄資料
+          required: true
+          schema:
+            $ref: '#/definitions/MedicalRecord'
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/BlockchainTransaction"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /Insurance/MedicalRecord/{row_CPK}:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: MedicalRecord
+    get:
+      description: 取得最新的醫療記錄資料hash
+      # used as the method name of the controller
+      operationId: GetMedicalRecordHash
+      parameters:
+        - name: row_CPK
+          in: path
+          description: medical_record_ID
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/TableRowDataHash"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+  /Insurance/MedicalRecord/{row_CPK}/{hash}:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: MedicalRecord
+    get:
+      description: 取得指定hash版本的醫療記錄資料
+      # used as the method name of the controller
+      operationId: GetMedicalRecord
+      parameters:
+        - name: row_CPK
+          in: path
+          description: medical_record_ID
+          required: true
+          type: string
+        - name: hash
+          in: path
+          description: data Hash
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/MedicalRecord"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
 
   #################################################
   # InsurancePolicy 保險契約 API   
   #################################################
+  /Insurance/InsurancePolicy/:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: InsurancePolicy
+    get:
+      description: 取得區塊鏈上已同步的保險契約資料
+      # used as the method name of the controller
+      operationId: GetInsurancePolicyInfo
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/TableInfo"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: 寫入保險契約資料
+      # used as the method name of the controller
+      operationId: SetInsurancePolicy
+      parameters:
+        - name: insurance_policy
+          in: body
+          description: 保險契約資料
+          required: true
+          schema:
+            $ref: '#/definitions/InsurancePolicy'
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/BlockchainTransaction"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /Insurance/InsurancePolicy/{row_CPK}:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: InsurancePolicy
+    get:
+      description: 取得最新的保險契約資料hash
+      # used as the method name of the controller
+      operationId: GetInsurancePolicyHash
+      parameters:
+        - name: row_CPK
+          in: path
+          description: insurance_policy_ID
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/TableRowDataHash"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+  /Insurance/InsurancePolicy/{row_CPK}/{hash}:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: InsurancePolicy
+    get:
+      description: 取得指定hash版本的保險契約資料
+      # used as the method name of the controller
+      operationId: GetInsurancePolicy
+      parameters:
+        - name: row_CPK
+          in: path
+          description: insurance_policy_ID
+          required: true
+          type: string
+        - name: hash
+          in: path
+          description: data Hash
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/InsurancePolicy"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
 
   #################################################
   # ClaimRecord 理賠案件 API  
   #################################################
+  /Insurance/ClaimRecord/:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: ClaimRecord
+    get:
+      description: 取得區塊鏈上已同步的理賠案件資料
+      # used as the method name of the controller
+      operationId: GetClaimRecordInfo
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/TableInfo"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: 寫入理賠案件資料
+      # used as the method name of the controller
+      operationId: SetClaimRecord
+      parameters:
+        - name: insurance_policy
+          in: body
+          description: 理賠案件資料
+          required: true
+          schema:
+            $ref: '#/definitions/ClaimRecord'
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/BlockchainTransaction"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /Insurance/ClaimRecord/{row_CPK}:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: ClaimRecord
+    get:
+      description: 取得最新的理賠案件資料hash
+      # used as the method name of the controller
+      operationId: GetClaimRecordHash
+      parameters:
+        - name: row_CPK
+          in: path
+          description: claim_record_ID
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/TableRowDataHash"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+  /Insurance/ClaimRecord/{row_CPK}/{hash}:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: ClaimRecord
+    get:
+      description: 取得指定hash版本的理賠案件資料
+      # used as the method name of the controller
+      operationId: GetClaimRecord
+      parameters:
+        - name: row_CPK
+          in: path
+          description: claim_record_ID
+          required: true
+          type: string
+        - name: hash
+          in: path
+          description: data Hash
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ClaimRecord"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
 
   /swagger:
     x-swagger-pipe: swagger_raw
@@ -193,20 +668,6 @@ definitions:
         type: string
       row_data:
         description: RDB Table row data
-        type: string
-        
-  TableRowData:
-    description: RDB Table row 資料
-    required:
-      - row_CPK
-      - row_data_hash
-      - row_data
-    properties:
-      row_CPK:
-        type: string
-      row_data_hash:
-        type: string
-      row_data:
         type: string
         
   TableRowDataHash:
@@ -247,10 +708,14 @@ definitions:
         description: 日額保險金
         type: integer
         format: int32
+        default: 0
+        minimum: 0
       policy_claimable_amount:
         description: 保險契約可理賠額度
         type: integer
         format: int32
+        default: 0
+        minimum: 0
 
   #################################################
   # ContractTerm 契約內容 API data format 
@@ -267,6 +732,8 @@ definitions:
         description: 理賠倍率 Decimal(19,9)x9
         type: integer
         format: int32
+        default: 0
+        minimum: 0
 
   #################################################
   # MedicalRecord 醫療記錄 API data format 
@@ -284,10 +751,14 @@ definitions:
         description: 住院天數
         type: integer
         format: int32
+        default: 0
+        minimum: 0
       fee:
         description: 醫療費用
         type: integer
         format: int32
+        default: 0
+        minimum: 0
 
   #################################################
   # InsurancePolicy 保險契約 API data format 
@@ -311,20 +782,38 @@ definitions:
     description: 理賠案件 data
     required:
       - table_row
-      - contract_address
+      - insured_person_ID
+      - medical_record_ID
+      - eligible_benefit_amount
+      - status_code
     properties:
       table_row:
         $ref: "#/definitions/TableRow"
-      contract_address:
-        description: 契約條款智能合約地址
+      insured_person_ID:
+        description: 被保險人ID
         type: string
+      medical_record_ID:
+        description: 醫療記錄ID
+        type: string
+      eligible_benefit_amount:
+        description: 符合資格的給付保險金額
+        type: integer
+        format: int32
+        default: 0
+        minimum: 0
+      status_code:
+        description: 理賠流程狀態碼
+        type: integer
+        format: int32
+        default: 0
+        minimum: 0
 
-  MessageResponse:
-    required:
-      - message
-    properties:
-      message:
-        type: string
+  # MessageResponse:
+  #   required:
+  #     - message
+  #   properties:
+  #     message:
+  #       type: string
         
   ErrorResponse:
     required:

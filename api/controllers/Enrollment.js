@@ -3,14 +3,14 @@
 var util = require('util');
 
 module.exports = {
-  GetPersonInfo: GetPersonInfo,
-  GetPersonHash: GetPersonHash,
-  GetPerson: GetPerson,
-  SetPerson: SetPerson
+  GetEnrollmentInfo: GetEnrollmentInfo,
+  GetEnrollmentHash: GetEnrollmentHash,
+  GetEnrollment: GetEnrollment,
+  SetEnrollment: SetEnrollment
 };
 
-function GetPersonInfo(req, res) {
-  var ContractObject = Person._originalContractObject;
+function GetEnrollmentInfo(req, res) {
+  var ContractObject = Enrollment._originalContractObject;
 
   var row_count = ContractObject.GetRowCount().toNumber();
   var row_CPKs = [];
@@ -28,10 +28,10 @@ function GetPersonInfo(req, res) {
   res.json(TableInfo);
 }
 
-function GetPersonHash(req, res) {
+function GetEnrollmentHash(req, res) {
   var row_CPK = req.swagger.params.row_CPK.value || '';
 
-  var ContractObject = Person._originalContractObject;
+  var ContractObject = Enrollment._originalContractObject;
 
   // TODO 看是不是先讀取queue內是否有相同contract的寫入時間，以queue內的資料當作是最新的。
   var row_data_hash = ContractObject.GetTableRowDataHash(row_CPK);
@@ -44,11 +44,11 @@ function GetPersonHash(req, res) {
   res.json(TableRowDataHash);
 }
 
-function GetPerson(req, res) {
+function GetEnrollment(req, res) {
   var row_CPK = req.swagger.params.row_CPK.value || '';
   var row_data_hash = req.swagger.params.hash.value || '';
 
-  var ContractObject = Person._originalContractObject;
+  var ContractObject = Enrollment._originalContractObject;
 
   var row_data = ContractObject.GetTableRowData(row_CPK, row_data_hash);
 
@@ -58,22 +58,29 @@ function GetPerson(req, res) {
     row_data: row_data
   };
 
-  var PersonResponse = {
-    table_row: TableRowData
+  var daily_benefit_amount = ContractObject.Get_daily_benefit_amount(row_CPK).toNumber();
+  var policy_claimable_amount = ContractObject.Get_policy_claimable_amount(row_CPK).toNumber();
+
+  var EnrollmentResponse = {
+    table_row: TableRowData,
+    daily_benefit_amount: daily_benefit_amount,
+    policy_claimable_amount: policy_claimable_amount
   };
 
-  res.json(PersonResponse);
+  res.json(EnrollmentResponse);
 }
 
-function SetPerson(req, res) {
+function SetEnrollment(req, res) {
   // variables defined in the Swagger document can be referenced using req.swagger.params.{parameter_name}
-  var person = req.swagger.params.person.value;
+  var enrollment = req.swagger.params.enrollment.value;
+  var daily_benefit_amount = req.swagger.params.enrollment.value.daily_benefit_amount;
+  var policy_claimable_amount = req.swagger.params.enrollment.value.policy_claimable_amount;
 
-  var row_CPK = person.table_row.row_CPK || '';
-  var row_data = person.table_row.row_data || '';
+  var row_CPK = enrollment.table_row.row_CPK || '';
+  var row_data = enrollment.table_row.row_data || '';
 
-  var ContractObject = Person._originalContractObject;
-  var set_function = 'SetPerson';
+  var ContractObject = Enrollment._originalContractObject;
+  var set_function = 'SetEnrollment';
   var set_event = 'e_SetTableRowData';
 
   // ToDo: 資料內容檢查
@@ -97,7 +104,7 @@ function SetPerson(req, res) {
       // var txHash = logs.transactionHash;
       // var web3_TransactionReceipt = web3.eth.getTransactionReceipt(txHash);
 
-      io.sockets.emit('SetPerson', JSON.stringify(logs.args) );
+      io.sockets.emit('SetEnrollment', JSON.stringify(logs.args) );
 
     } else {
 
@@ -105,7 +112,7 @@ function SetPerson(req, res) {
     event_listener.stopWatching();
   });
 
-  var txHash = ContractObject[set_function](row_CPK, row_data, {gas: 4141592});
+  var txHash = ContractObject[set_function](row_CPK, row_data, daily_benefit_amount, policy_claimable_amount, {gas: 4141592});
 
 
   // var pending_date = moment();
