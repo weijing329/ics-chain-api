@@ -30,6 +30,7 @@ function GetPersonInfo(req, res) {
 
 function GetPersonHash(req, res) {
   var row_CPK = req.swagger.params.code.value || '';
+
   var ContractObject = Person._originalContractObject;
 
   // TODO 看是不是先讀取queue內是否有相同contract的寫入時間，以queue內的資料當作是最新的。
@@ -46,6 +47,7 @@ function GetPersonHash(req, res) {
 function GetPersonData(req, res) {
   var row_CPK = req.swagger.params.code.value || '';
   var row_data_hash = req.swagger.params.hash.value || '';
+
   var ContractObject = Person._originalContractObject;
 
   var row_data = ContractObject.GetTableRowData(row_CPK, row_data_hash);
@@ -56,14 +58,16 @@ function GetPersonData(req, res) {
     row_data: row_data
   };
 
-  res.json(TableRowData);
+  var PersonResponse = {
+    table_row: TableRowData
+  };
+
+  res.json(PersonResponse);
 }
 
 function SetPerson(req, res) {
   // variables defined in the Swagger document can be referenced using req.swagger.params.{parameter_name}
   var person = req.swagger.params.person.value;
-
-
 
   var row_CPK = person.table_row.row_CPK || '';
   var row_data = person.table_row.row_data || '';

@@ -42,6 +42,10 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+
+  #################################################
+  # Person 自然人 API    
+  #################################################
   /Government/Person/:
     # binds a127 app logic to a route
     x-swagger-router-controller: Person
@@ -82,6 +86,7 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
+
   /Government/Person/{code}:
     # binds a127 app logic to a route
     x-swagger-router-controller: Person
@@ -130,13 +135,33 @@ paths:
           description: Success
           schema:
             # a pointer to a definition
-            $ref: "#/definitions/TableRowData"
+            $ref: "#/definitions/Person"
         # responses may fall through to errors
         default:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
             
+  #################################################
+  # Enrollment 註冊保戶保單 API        
+  #################################################
+
+  #################################################
+  # ContractTerm 契約內容 API  
+  #################################################
+
+  #################################################
+  # MedicalRecord 醫療記錄 API  
+  #################################################
+
+  #################################################
+  # InsurancePolicy 保險契約 API   
+  #################################################
+
+  #################################################
+  # ClaimRecord 理賠案件 API  
+  #################################################
+
   /swagger:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
@@ -194,15 +219,106 @@ definitions:
         type: string
       row_data_hash:
         type: string
-        
+
+  #################################################
+  # Person 自然人 API Input format 
+  #################################################
   Person:
-    description: 自然人資料
+    description: 自然人 data
     required:
       - table_row
     properties:
       table_row:
         $ref: "#/definitions/TableRow"
         
+  #################################################
+  # Enrollment 註冊保戶保單 API Input format 
+  #################################################
+  Enrollment:
+    description: 註冊保戶保單 data
+    required:
+      - table_row
+      - daily_benefit_amount
+      - policy_claimable_amount
+    properties:
+      table_row:
+        $ref: "#/definitions/TableRow"
+      daily_benefit_amount:
+        description: 日額保險金
+        type: integer
+        format: int32
+      policy_claimable_amount:
+        description: 保險契約可理賠額度
+        type: integer
+        format: int32
+
+  #################################################
+  # ContractTerm 契約內容 API data format 
+  #################################################
+  ContractTerm:
+    description: 契約內容 data
+    required:
+      - table_row
+      - claim_adjustment
+    properties:
+      table_row:
+        $ref: "#/definitions/TableRow"
+      claim_adjustment:
+        description: 理賠倍率 Decimal(19,9)x9
+        type: integer
+        format: int32
+
+  #################################################
+  # MedicalRecord 醫療記錄 API data format 
+  #################################################
+  MedicalRecord:
+    description: 醫療記錄 data
+    required:
+      - table_row
+      - hospital_days
+      - fee
+    properties:
+      table_row:
+        $ref: "#/definitions/TableRow"
+      hospital_days:
+        description: 住院天數
+        type: integer
+        format: int32
+      fee:
+        description: 醫療費用
+        type: integer
+        format: int32
+
+  #################################################
+  # InsurancePolicy 保險契約 API data format 
+  #################################################
+  InsurancePolicy:
+    description: 保險契約 data
+    required:
+      - table_row
+      - contract_address
+    properties:
+      table_row:
+        $ref: "#/definitions/TableRow"
+      contract_address:
+        description: 契約條款智能合約地址
+        type: string
+
+  #################################################
+  # ClaimRecord 理賠案件 API data format 
+  #################################################
+  ClaimRecord:
+    description: 理賠案件 data
+    required:
+      - table_row
+      - contract_address
+    properties:
+      table_row:
+        $ref: "#/definitions/TableRow"
+      contract_address:
+        description: 契約條款智能合約地址
+        type: string
+
   MessageResponse:
     required:
       - message
