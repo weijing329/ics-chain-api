@@ -40,7 +40,9 @@ global.io = io;
 // socket.broadcast(); send the message to all the other clients except the 'broadcasting' socket
 
 io.on('connection', function(socket){
-  console.log('Client connected');
+  var now = moment();
+  
+  console.log(now.format('YYYY-MM-DD HH:mm:ss.SSS Z') + ' Client connected');
   //socket.to('others').emit('an event', { some: 'data' });
 
   socket.on('messaging', function (data) {

@@ -564,7 +564,7 @@ paths:
       # used as the method name of the controller
       operationId: SetClaimRecord
       parameters:
-        - name: insurance_policy
+        - name: claim_record
           in: body
           description: 理賠案件資料
           required: true

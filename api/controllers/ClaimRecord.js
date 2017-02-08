@@ -118,7 +118,7 @@ function SetClaimRecord(req, res) {
     event_listener.stopWatching();
   });
 
-  var txHash = ContractObject[set_function](row_CPK, row_data, contract_address, {gas: 4141592});
+  var txHash = ContractObject[set_function](row_CPK, row_data, insured_person_ID, medical_record_ID, eligible_benefit_amount, status_code, {gas: 4141592});
 
 
   // var pending_date = moment();
