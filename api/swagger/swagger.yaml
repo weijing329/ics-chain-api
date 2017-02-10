@@ -588,7 +588,7 @@ paths:
     get:
       description: 取得最新的理賠案件資料hash
       # used as the method name of the controller
-      operationId: GetClaimRecordHash
+      operationId: GetClaimRecordHashWithStatusCode
       parameters:
         - name: row_CPK
           in: path
@@ -600,7 +600,7 @@ paths:
           description: Success
           schema:
             # a pointer to a definition
-            $ref: "#/definitions/TableRowDataHash"
+            $ref: "#/definitions/TableRowDataHashWithStatusCode"
         # responses may fall through to errors
         default:
           description: Error
@@ -631,6 +631,35 @@ paths:
           schema:
             # a pointer to a definition
             $ref: "#/definitions/ClaimRecord"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  #################################################
+  # CalculateBenefit 理賠計算 API  
+  #################################################
+  /Insurance/CalculateBenefit/:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: ClaimRecord
+    post:
+      description: 執行理賠計算
+      # used as the method name of the controller
+      operationId: CalculateBenefit
+      parameters:
+        - name: calculate_benefit_param
+          in: body
+          description: 理賠計算參數
+          required: true
+          schema:
+            $ref: '#/definitions/CalculateBenefitParam'
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/BlockchainTransaction"
         # responses may fall through to errors
         default:
           description: Error
@@ -680,6 +709,23 @@ definitions:
         type: string
       row_data_hash:
         type: string
+
+  TableRowDataHashWithStatusCode:
+    description: RDB Table row 資料hash with status code
+    required:
+      - row_CPK
+      - row_data_hash
+      - status_code
+    properties:
+      row_CPK:
+        type: string
+      row_data_hash:
+        type: string
+      status_code:
+        type: integer
+        format: int32
+        default: 0
+        minimum: 0
 
   #################################################
   # Person 自然人 API Input format 
@@ -807,6 +853,30 @@ definitions:
         format: int32
         default: 0
         minimum: 0
+
+  #################################################
+  # CalculateBenefit 理賠計算 API data format 
+  #################################################
+  CalculateBenefitParam:
+    description: 理賠計算參數
+    required:
+      - cliam_record_ID
+      - insurance_policy_package_ID
+      - insurance_policy_ID
+      - benefit_item_ID
+    properties:
+      cliam_record_ID:
+        description: 理賠案件ID
+        type: string
+      insurance_policy_package_ID:
+        description: 保單ID
+        type: string
+      insurance_policy_ID:
+        description: 保險契約ID
+        type: string
+      benefit_item_ID:
+        description: 給付項目ID
+        type: string
 
   # MessageResponse:
   #   required:

@@ -4,9 +4,10 @@ var util = require('util');
 
 module.exports = {
   GetClaimRecordInfo: GetClaimRecordInfo,
-  GetClaimRecordHash: GetClaimRecordHash,
+  GetClaimRecordHashWithStatusCode: GetClaimRecordHashWithStatusCode,
   GetClaimRecord: GetClaimRecord,
-  SetClaimRecord: SetClaimRecord
+  SetClaimRecord: SetClaimRecord,
+  CalculateBenefit: CalculateBenefit
 };
 
 function GetClaimRecordInfo(req, res) {
@@ -28,20 +29,22 @@ function GetClaimRecordInfo(req, res) {
   res.json(TableInfo);
 }
 
-function GetClaimRecordHash(req, res) {
+function GetClaimRecordHashWithStatusCode(req, res) {
   var row_CPK = req.swagger.params.row_CPK.value || '';
 
   var ContractObject = ClaimRecord._originalContractObject;
 
   // TODO 看是不是先讀取queue內是否有相同contract的寫入時間，以queue內的資料當作是最新的。
   var row_data_hash = ContractObject.GetTableRowDataHash(row_CPK);
+  var row_status_code = ContractObject.Get_status_code(row_CPK).toNumber();
 
-  var TableRowDataHash = {
+  var TableRowDataHashWithStatusCode = {
     row_CPK: row_CPK,
-    row_data_hash: row_data_hash
+    row_data_hash: row_data_hash,
+    status_code: row_status_code
   };
 
-  res.json(TableRowDataHash);
+  res.json(TableRowDataHashWithStatusCode);
 }
 
 function GetClaimRecord(req, res) {
@@ -132,6 +135,24 @@ function SetClaimRecord(req, res) {
   };
   res.json(TransactionResponse);
 
+}
+
+function CalculateBenefit(req, res) {
+  var calculate_benefit_param = req.swagger.params.calculate_benefit_param.value;
+  var cliam_record_ID = calculate_benefit_param.cliam_record_ID;
+  var insurance_policy_package_ID = calculate_benefit_param.insurance_policy_package_ID;
+  var insurance_policy_ID = calculate_benefit_param.insurance_policy_ID;
+  var benefit_item_ID = calculate_benefit_param.benefit_item_ID;
+
+  var ContractObject = ClaimRecord._originalContractObject;
+  var function_name = 'CalculateBenefit';
+
+  var txHash = ContractObject[function_name](cliam_record_ID, insurance_policy_package_ID, insurance_policy_ID, benefit_item_ID, {gas: 4141592});
+
+  var TransactionResponse = {
+    txHash: txHash
+  };
+  res.json(TransactionResponse);
 }
 
 function NotImplemented(req, res) {
