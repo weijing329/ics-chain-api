@@ -24,6 +24,7 @@ global.ContractTerm = require('./lib/contracts/ContractTerm.js');
 global.InsurancePolicy = require('./lib/contracts/InsurancePolicy.js');
 global.MedicalRecord = require('./lib/contracts/MedicalRecord.js');
 global.ClaimRecord = require('./lib/contracts/ClaimRecord.js');
+global.TransferRecord = require('./lib/contracts/TransferRecord.js');
 global.ClaimRecordStatusWater = require('./lib/workflow_status_watcher/ClaimRecordStatus.js');
 
 global.io = io;

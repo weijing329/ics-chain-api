@@ -666,6 +666,105 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
 
+  #################################################
+  # TransferRecord 轉帳記錄 API  
+  #################################################
+  /Bank/TransferRecord/:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: TransferRecord
+    get:
+      description: 取得區塊鏈上已同步的轉帳記錄資料
+      # used as the method name of the controller
+      operationId: GetTransferRecordInfo
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/TableInfo"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: 寫入理賠案件資料
+      # used as the method name of the controller
+      operationId: SetTransferRecord
+      parameters:
+        - name: transfer_record
+          in: body
+          description: 理賠案件資料
+          required: true
+          schema:
+            $ref: '#/definitions/TransferRecord'
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/BlockchainTransaction"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /Bank/TransferRecord/{row_CPK}:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: TransferRecord
+    get:
+      description: 取得最新的轉帳記錄資料hash
+      # used as the method name of the controller
+      operationId: GetTransferRecordHash
+      parameters:
+        - name: row_CPK
+          in: path
+          description: transfer_record_ID
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/TableRowDataHash"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+  /Bank/TransferRecord/{row_CPK}/{hash}:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: TransferRecord
+    get:
+      description: 取得指定hash版本的理賠案件轉帳記錄資料
+      # used as the method name of the controller
+      operationId: GetTransferRecord
+      parameters:
+        - name: row_CPK
+          in: path
+          description: transfer_record_ID
+          required: true
+          type: string
+        - name: hash
+          in: path
+          description: data Hash
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/TransferRecord"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
   /swagger:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
@@ -877,6 +976,31 @@ definitions:
       benefit_item_ID:
         description: 給付項目ID
         type: string
+
+  #################################################
+  # TransferRecord 轉帳記錄 API data format 
+  #################################################
+  TransferRecord:
+    description: 轉帳記錄 data
+    required:
+      - table_row
+      - transfer_amount
+      - status_code
+    properties:
+      table_row:
+        $ref: "#/definitions/TableRow"
+      transfer_amount:
+        description: 轉帳金額
+        type: integer
+        format: int32
+        default: 0
+        minimum: 0
+      status_code:
+        description: 轉帳流程狀態碼
+        type: integer
+        format: int32
+        default: 0
+        minimum: 0
 
   # MessageResponse:
   #   required:
