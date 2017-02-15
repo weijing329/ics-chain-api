@@ -40,10 +40,36 @@ global.io = io;
 // broadcast() only can be use when knowing which socket sending from 
 // socket.broadcast(); send the message to all the other clients except the 'broadcasting' socket
 
+var allClients = [];
+var clients_count = 0;
+var client_keepalive_timers = {};
 io.on('connection', function(socket){
-  var now = moment();
+  allClients.push(socket);
+  clients_count = allClients.length;
+
+  var client_IP = socket.request.connection.remoteAddress;
+  var client_port = socket.request.connection.remotePort
+
+  client_keepalive_timers[socket.id] = setInterval(sendHeartbeat, 10000);
+  function sendHeartbeat(){
+    var now = moment();
+    var new_beat = now.format('YYYY-MM-DD HH:mm:ss.SSS Z') + ' Ping sent from server';
+    socket.broadcast.emit('KA_ping', { new_beat : new_beat });
+  }
+
+  socket.on('disconnect', function() {
+    clearInterval(client_keepalive_timers[socket.id]);
+
+    var i = allClients.indexOf(socket);
+    allClients.splice(i, 1);
+    clients_count = allClients.length;
+
+    var now = moment();
+    console.log(now.format('YYYY-MM-DD HH:mm:ss.SSS Z') + ' socket.id = ' + socket.id + ' Disconnected, ' + clients_count + ' client(s) connected');
+  });
   
-  console.log(now.format('YYYY-MM-DD HH:mm:ss.SSS Z') + ' Client connected');
+  var now = moment();
+  console.log(now.format('YYYY-MM-DD HH:mm:ss.SSS Z') + ' New connection from ' + client_IP + ':' + client_port + ', socket.id = ' + socket.id + ', ' + clients_count + ' client(s) connected');
   //socket.to('others').emit('an event', { some: 'data' });
 
   socket.on('messaging', function (data) {
@@ -63,6 +89,13 @@ io.on('connection', function(socket){
   socket.on('ack', function (data) {
     console.log('ack: ' + data);
   });
+
+  socket.on('KA_pong', function(data){
+    var now = moment();
+    var alive = now.format('YYYY-MM-DD HH:mm:ss.SSS Z') + ' Pong received from client';
+    socket.broadcast.emit('KA_alive', { alive : alive });
+  });
+
 });
 
 SwaggerExpress.create(config, function(err, swaggerExpress) {
