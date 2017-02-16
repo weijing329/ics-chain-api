@@ -29,6 +29,12 @@ global.ClaimRecordStatusWater = require('./lib/workflow_status_watcher/ClaimReco
 
 global.io = io;
 
+global.LogTimeMsg = function (msg) {
+  var now = moment();
+  var log_msg = now.format('YYYY-MM-DD HH:mm:ss.SSS Z') + ' ' + msg;
+  console.log(log_msg);
+}
+
 // socket.io
 // Default namespace (/)
 // Default path (/socket.io)
