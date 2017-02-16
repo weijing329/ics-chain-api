@@ -114,7 +114,7 @@ function SetClaimRecord(req, res) {
       // var web3_TransactionReceipt = web3.eth.getTransactionReceipt(txHash);
 
       io.sockets.emit('SetClaimRecord', JSON.stringify(logs.args) );
-
+      LogTimeMsg('SetClaimRecord event emited');
     } else {
 
     }

@@ -56,11 +56,11 @@ io.on('connection', function(socket){
   var client_IP = socket.request.connection.remoteAddress;
   var client_port = socket.request.connection.remotePort
 
-  client_keepalive_timers[socket.id] = setInterval(sendHeartbeat, 10000);
+  client_keepalive_timers[socket.id] = setInterval(sendHeartbeat, 2000);
   function sendHeartbeat(){
     var now = moment();
     var new_beat = now.format('YYYY-MM-DD HH:mm:ss.SSS Z') + ' Ping sent from server';
-    socket.broadcast.emit('KA_ping', { new_beat : new_beat });
+    io.sockets.emit('KA_ping', { new_beat : new_beat });
   }
 
   socket.on('disconnect', function() {
@@ -78,28 +78,10 @@ io.on('connection', function(socket){
   console.log(now.format('YYYY-MM-DD HH:mm:ss.SSS Z') + ' New connection from ' + client_IP + ':' + client_port + ', socket.id = ' + socket.id + ', ' + clients_count + ' client(s) connected');
   //socket.to('others').emit('an event', { some: 'data' });
 
-  socket.on('messaging', function (data) {
-    console.log('messaging: ' + data);
-
-    socket.emit('messaging', 'message received');
-
-    socket.broadcast.emit('application', { name: data });
-  });
-
-  socket.on('application', function (data) {
-    console.log('application: ' + data);
-
-    socket.broadcast.emit('ack', { name: data });
-  });
-
-  socket.on('ack', function (data) {
-    console.log('ack: ' + data);
-  });
-
   socket.on('KA_pong', function(data){
     var now = moment();
     var alive = now.format('YYYY-MM-DD HH:mm:ss.SSS Z') + ' Pong received from client';
-    socket.broadcast.emit('KA_alive', { alive : alive });
+    io.sockets.emit('KA_alive', { alive : alive });
   });
 
 });
