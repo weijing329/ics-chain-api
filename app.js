@@ -17,7 +17,6 @@ global.moment = require('moment');
 
 global.web3 = require('./lib/web3_connector.js');
 global.EmbarkJS = require('./lib/embark.js');
-global.Government = require('./lib/contracts/Government.js');
 global.Person = require('./lib/contracts/Person.js');
 global.Enrollment = require('./lib/contracts/Enrollment.js');
 global.ContractTerm = require('./lib/contracts/ContractTerm.js');
